@@ -47,7 +47,7 @@ export function parseFromClipboard(view, text, html, plainText, $context) {
       slice = parsed
     } else {
       dom = document.createElement("div")
-      text.trim().split(/(?:\r\n?|\n)+/).forEach(block => {
+      text.trim().split(/(?:\r\n?|\n)/).forEach(block => {
         dom.appendChild(document.createElement("p")).textContent = block
       })
     }
