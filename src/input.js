@@ -436,12 +436,12 @@ export function endComposition(view, forceUpdate) {
   return false
 }
 
-function captureCopy(view, dom) {
+function captureCopy(view, text) {
   // The extra wrapper is somehow necessary on IE/Edge to prevent the
   // content from being mangled when it is put onto the clipboard
   let doc = view.dom.ownerDocument
-  let wrap = doc.body.appendChild(doc.createElement("div"))
-  wrap.appendChild(dom)
+  let wrap = doc.body.appendChild(doc.createElement("p"))
+  wrap.textContent = text
   wrap.style.cssText = "position: fixed; left: -10000px; top: 10px"
   let sel = getSelection(), range = doc.createRange()
   range.selectNodeContents(dom)
@@ -467,17 +467,15 @@ handlers.copy = editHandlers.cut = (view, e) => {
   let sel = view.state.selection, cut = e.type == "cut"
   if (sel.empty) return
 
-  // IE and Edge's clipboard interface is completely broken
-  let data = brokenClipboardAPI ? null : e.clipboardData
   let slice = sel.content(), {dom, text} = serializeForClipboard(view, slice)
-  if (data) {
+  if (brokenClipboardAPI) {
+    captureCopy(view, text)
+  } else {
     e.preventDefault()
     data.clearData()
-    data.setData("text/html", dom.innerHTML)
     data.setData("text/plain", text)
-  } else {
-    captureCopy(view, dom)
   }
+
   if (cut) view.dispatch(view.state.tr.deleteSelection().scrollIntoView().setMeta("uiEvent", "cut"))
 }
 

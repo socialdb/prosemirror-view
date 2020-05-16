@@ -3542,12 +3542,12 @@ function endComposition(view, forceUpdate) {
   return false
 }
 
-function captureCopy(view, dom) {
+function captureCopy(view, text) {
   // The extra wrapper is somehow necessary on IE/Edge to prevent the
   // content from being mangled when it is put onto the clipboard
   var doc = view.dom.ownerDocument;
-  var wrap = doc.body.appendChild(doc.createElement("div"));
-  wrap.appendChild(dom);
+  var wrap = doc.body.appendChild(doc.createElement("p"));
+  wrap.textContent = text;
   wrap.style.cssText = "position: fixed; left: -10000px; top: 10px";
   var sel = getSelection(), range = doc.createRange();
   range.selectNodeContents(dom);
@@ -3573,20 +3573,17 @@ handlers.copy = editHandlers.cut = function (view, e) {
   var sel = view.state.selection, cut = e.type == "cut";
   if (sel.empty) { return }
 
-  // IE and Edge's clipboard interface is completely broken
-  var data = brokenClipboardAPI ? null : e.clipboardData;
   var slice = sel.content();
   var ref = serializeForClipboard(view, slice);
-  var dom = ref.dom;
   var text = ref.text;
-  if (data) {
+  if (brokenClipboardAPI) {
+    captureCopy(view, text);
+  } else {
     e.preventDefault();
     data.clearData();
-    data.setData("text/html", dom.innerHTML);
     data.setData("text/plain", text);
-  } else {
-    captureCopy(view, dom);
   }
+
   if (cut) { view.dispatch(view.state.tr.deleteSelection().scrollIntoView().setMeta("uiEvent", "cut")); }
 };
 
