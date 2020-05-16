@@ -501,11 +501,12 @@ function capturePaste(view, e) {
 }
 
 function doPaste(view, text, html, e) {
-  let slice = parseFromClipboard(view, text, html, view.shiftKey, view.state.selection.$from)
+  let usePlainText = true
+  let slice = parseFromClipboard(view, text, html, usePlainText, view.state.selection.$from)
   if (view.someProp("handlePaste", f => f(view, e, slice || Slice.empty)) || !slice) return
 
   let singleNode = sliceSingleNode(slice)
-  let tr = singleNode ? view.state.tr.replaceSelectionWith(singleNode, view.shiftKey) : view.state.tr.replaceSelection(slice)
+  let tr = singleNode ? view.state.tr.replaceSelectionWith(singleNode, usePlainText) : view.state.tr.replaceSelection(slice)
   view.dispatch(tr.scrollIntoView().setMeta("paste", true).setMeta("uiEvent", "paste"))
 }
 

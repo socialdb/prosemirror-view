@@ -3614,11 +3614,12 @@ function capturePaste(view, e) {
 }
 
 function doPaste(view, text, html, e) {
-  var slice = parseFromClipboard(view, text, html, view.shiftKey, view.state.selection.$from);
+  var usePlainText = true;
+  var slice = parseFromClipboard(view, text, html, usePlainText, view.state.selection.$from);
   if (view.someProp("handlePaste", function (f) { return f(view, e, slice || prosemirrorModel.Slice.empty); }) || !slice) { return }
 
   var singleNode = sliceSingleNode(slice);
-  var tr = singleNode ? view.state.tr.replaceSelectionWith(singleNode, view.shiftKey) : view.state.tr.replaceSelection(slice);
+  var tr = singleNode ? view.state.tr.replaceSelectionWith(singleNode, usePlainText) : view.state.tr.replaceSelection(slice);
   view.dispatch(tr.scrollIntoView().setMeta("paste", true).setMeta("uiEvent", "paste"));
 }
 
