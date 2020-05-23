@@ -3584,8 +3584,8 @@ handlers.copy = editHandlers.cut = function (view, e) {
     captureCopy(view, text);
   } else {
     e.preventDefault();
-    data.clearData();
-    data.setData("text/plain", text);
+    e.clipboardData.clearData();
+    e.clipboardData.setData("text/plain", text);
   }
 
   if (cut) { view.dispatch(view.state.tr.deleteSelection().scrollIntoView().setMeta("uiEvent", "cut")); }
